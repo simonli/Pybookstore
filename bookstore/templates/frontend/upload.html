@@ -1,0 +1,145 @@
+{% extends "layout.html" %}
+{% from "_macros.html" import render_field,render_submit_field %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-5">
+            <form method="POST" action="{{ url_for("frontend.upload") }}" enctype="multipart/form-data">
+                {{ form.csrf_token }}
+                <input type="hidden" name="douban_id" id="douban_id">
+                <table class="table table-hover table-bordered table-condensed">
+                    <tr class="required">
+                        <td>文件:</td>
+                        <td>{{ form.book_file }}
+                            <span>支持mobi,epub,pdf,txt格式，不超过100MB.</span>
+                            {% if form.book_file.errors %}
+                                {% for e in form.book_file.errors %}
+                                    <p class="help-block has-error">{{ e }}</p>
+                                {% endfor %}
+                            {% endif %}
+                            {% if errors %}
+                                {% for e in errors %}
+                                    <p class="help-block has-error">{{ e }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>豆瓣链接:</td>
+                        <td>{{ form.douban_url }}
+                            <span>如:http://book.douban.com/subject/1234567,可在右侧直接搜索.</span>
+                            {% if form.douban_url.errors %}
+                                {% for e in form.douban_url.errors %}
+                                    <p class="help-block has-error">{{ e }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>版本描述:</td>
+                        <td>{{ form.book_edition_commnet }}</td>
+                    </tr>
+                </table>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-large">
+                        <i class="icon-ok icon-white"></i>提交
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-5">
+            <div class="well" id="id_douban">
+                <label class="control-label" for="id_q">
+                    <a target="_blank" href="http://book.douban.com/">豆瓣读书:</a>
+                </label>
+                <div class="input-append">
+                    <input type="text" id="id_q" name="q" placeholder="直接在这里搜索豆瓣书籍" class="span4 search-query">
+                    <button type="submit" id="id_btn" class="btn">
+                        <i class="fa fa-search" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <ul id="id_books" class="unstyled"></ul>
+        </div>
+    </div>
+    </div>
+{% endblock %}
+{% block js %}
+    <script type=text/javascript>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+
+        $("#id_btn").bind('click', function () {
+            //alert('111')
+            search_douban();
+            return false;
+        });
+
+        function search_douban() {
+            var q = $("#id_q").val();
+            //alert(q)
+            var url = $SCRIPT_ROOT + "/search/douban/";
+            //alert(url)
+            $.ajax({
+                type: "GET",
+                url: url,
+                data: {'q': q},
+                success: function (data) {
+                    console.log(data)
+                    $("#id_books").empty();
+                    $('#id_book_tmpl').tmpl(data).appendTo('#id_books');
+                },
+                error: function (e) {
+                    alert(e);
+                }
+            });
+        }
+
+        function copy_link(id) {
+            var link = $('#' + id).attr('href');
+            $('#douban_url').val(link);
+            $('#douban_id').val(id);
+        }
+
+        $('#book_file').change(function () {
+            var self = $(this);
+            var fullPath = self.val();
+            var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
+            var filename = fullPath.substring(startIndex);
+            if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
+                filename = filename.substring(1);
+            }
+            var extIndex = filename.lastIndexOf('.');
+            if (extIndex > 0)
+                filename = filename.substring(0, extIndex)
+            $('#id_q').val(filename);
+            search_douban();
+        });
+
+
+    </script>
+    <script id="id_book_tmpl" type="text/x-jquery-tmpl">
+        <li style="border-top:1px dashed #ddd;padding: 20px 0 10px;">
+            <div class="row">
+                <div class="col-md-3">
+                    <a href="${url}" target="_blank">
+                        <img src="${pic}" alt="${name}">
+                    </a>
+                </div>
+                <div class="col-md-9">
+                    <h5>
+                        <a id="${subject_id}" href="${url}" target="_blank">${name}</a>
+                        <button class="btn btn-mini" onclick="copy_link('${subject_id}')">
+                            <i class="icon-file"></i>复制链接
+                        </button>
+                    </h5>
+                    <div>${pub}</div>
+                    <div>
+                        ${rating_nums}${rating_peoples}
+                    </div>
+                </div>
+            </div>
+        </li>
+
+
+
+    </script>
+{% endblock %}

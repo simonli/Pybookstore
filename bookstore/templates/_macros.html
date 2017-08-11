@@ -1,0 +1,98 @@
+{% macro render_field2(field, left_class='col-md-2', right_class='col-md-5',label=None, label_visible=true ) -%}
+    <div class="form-group {% if field.errors %}has-error{% endif %} {{ kwargs.pop('class_', '') }}">
+        {% if field.type != 'HiddenField' and label_visible %}
+            {% if not label %}{% set label=field.label.text %}{% endif %}
+            <label for="{{ field.id }}" class="control-label {{ left_class }}">{{ label|safe }}</label>
+        {% endif %}
+        {% if right_class !='' %}
+            <div class="{{ right_class }}">
+        {% endif %}
+        {{ field(class_='form-control', **kwargs) }}
+        {% if field.errors %}
+            {% for e in field.errors %}
+                <p class="help-block">{{ e }}</p>
+            {% endfor %}
+        {% endif %}
+        {% if right_class !='' %}
+            </div>
+        {% endif %}
+    </div>
+{%- endmacro %}
+
+{% macro render_field(field, label=None, label_visible=true ) -%}
+    <div class="form-group {% if field.errors %}has-error{% endif %} {{ kwargs.pop('class_', '') }}">
+        {% if field.type != 'HiddenField' and label_visible %}
+            {% if not label %}{% set label=field.label.text %}{% endif %}
+            <label for="{{ field.id }}" class="control-label">{{ label|safe }}</label>
+        {% endif %}
+        {{ field(class_='form-control', **kwargs) }}
+        {% if field.errors %}
+            {% for e in field.errors %}
+                <p class="help-block">{{ e }}</p>
+            {% endfor %}
+        {% endif %}
+
+    </div>
+{%- endmacro %}
+
+
+{% macro render_errors(field) -%}
+    {% if field.errors %}
+        {% for e in field.errors %}
+            <p class="help-block">{{ e }}</p>
+        {% endfor %}
+    {% endif %}
+{%- endmacro %}
+
+{% macro render_submit_field(field, label=None) -%}
+    {% if not label %}{% set label=field.label.text %}{% endif %}
+    <div class="form-group {% if field.errors %}has-error{% endif %} {{ kwargs.pop('class_', '') }}">
+        <input type="submit" class="form-control" value="{{ label }}">
+    </div>
+{%- endmacro %}
+
+
+{% macro render_submit_field2(field, right_class='col-md-offset-2 col-md-1', label=None) -%}
+    {% if not label %}{% set label=field.label.text %}{% endif %}
+    <div class="form-group {% if field.errors %}has-error{% endif %} {{ kwargs.pop('class_', '') }}">
+        {% if right_class !='' %}
+            <div class="{{ right_class }}">
+        {% endif %}
+        <input type="submit" class="form-control" value="{{ label }}">
+        {% if right_class !='' %}
+            </div>
+        {% endif %}
+    </div>
+{%- endmacro %}
+
+{% macro pagination_widget(pagination, endpoint, fragment='') %}
+    <ul class="pagination">
+        <li{% if not pagination.has_prev %} class="disabled"{% endif %}>
+            <a href="{% if pagination.has_prev %}{{ url_for(endpoint,
+                page = pagination.page - 1, **kwargs) }}{{ fragment }}{% else %}#{% endif %}">
+                &laquo;
+            </a>
+        </li>
+        {% for p in pagination.iter_pages() %}
+            {% if p %}
+                {% if p == pagination.page %}
+                    <li class="active">
+                        <a href="{{ url_for(endpoint, page = p, **kwargs) }}{{ fragment }}">{{ p }}</a>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="{{ url_for(endpoint, page = p, **kwargs) }}{{ fragment }}">{{ p }}</a>
+                    </li>
+                {% endif %}
+            {% else %}
+                <li class="disabled"><a href="#">&hellip;</a></li>
+            {% endif %}
+        {% endfor %}
+        <li{% if not pagination.has_next %} class="disabled"{% endif %}>
+            <a href="{% if pagination.has_next %}{{ url_for(endpoint,
+                page = pagination.page + 1, **kwargs) }}{{ fragment }}{% else %}#{% endif %}">
+                &raquo;
+            </a>
+        </li>
+    </ul>
+{% endmacro %}

@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% from "_macros.html" import render_field,render_submit_field %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-2">
+                <form action="{{ url_for('account.register') }}" method="post" class="form-horizontal" role="form">
+                    {{ form.csrf_token }}
+                    {{ render_field(form.username) }}
+                    {{ render_field(form.email) }}
+                    {{ render_field(form.password) }}
+                    {{ render_field(form.password_confirm) }}
+                    {{ render_submit_field(form.submit) }}
+                </form>
+        </div>
+    </div>
+    </div>
+{% endblock %}
