@@ -1,6 +1,16 @@
 {% extends "layout.html" %}
-{% from "_macros.html" import render_field,render_submit_field %}
+{% from "_macros.html" import render_errors %}
 {% block content %}
+    <div class="row" style="margin-bottom: 10px;">
+        <ul class="nav nav-tabs">
+            <li class='active'>
+                <a href="{{ url_for('frontend.upload') }}">豆瓣</a>
+            </li>
+            <li class=''>
+                <a href="{{ url_for('frontend.upload_ext') }}">自定义</a>
+            </li>
+        </ul>
+    </div>
     <div class="row">
         <div class="col-md-5">
             <form method="POST" action="{{ url_for("frontend.upload") }}" enctype="multipart/form-data">
@@ -11,11 +21,7 @@
                         <td>文件:</td>
                         <td>{{ form.book_file }}
                             <span>支持mobi,epub,pdf,txt格式，不超过100MB.</span>
-                            {% if form.book_file.errors %}
-                                {% for e in form.book_file.errors %}
-                                    <p class="help-block has-error">{{ e }}</p>
-                                {% endfor %}
-                            {% endif %}
+                            {{ render_errors(form.book_file) }}
                             {% if errors %}
                                 {% for e in errors %}
                                     <p class="help-block has-error">{{ e }}</p>
@@ -27,11 +33,7 @@
                         <td>豆瓣链接:</td>
                         <td>{{ form.douban_url }}
                             <span>如:http://book.douban.com/subject/1234567,可在右侧直接搜索.</span>
-                            {% if form.douban_url.errors %}
-                                {% for e in form.douban_url.errors %}
-                                    <p class="help-block has-error">{{ e }}</p>
-                                {% endfor %}
-                            {% endif %}
+                            {{ render_errors(form.douban_url) }}
                         </td>
                     </tr>
                     <tr>
@@ -138,8 +140,5 @@
                 </div>
             </div>
         </li>
-
-
-
     </script>
 {% endblock %}

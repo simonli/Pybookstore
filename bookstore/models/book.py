@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 from datetime import datetime
+
 from bookstore.extensions import db
 
 books_tags = db.Table('book2tag',
@@ -16,9 +17,9 @@ books_categories = db.Table('book2category',
 class Book(db.Model):
     __tablename__ = 'books'
     id = db.Column(db.String(255), primary_key=True)
-    name = db.Column(db.String(255), nullable=False, unique=True, index=True)  # 书名
+    name = db.Column(db.String(255), nullable=False, index=True)  # 书名
     author = db.Column(db.String(255))  # 作者
-    cover=db.Column(db.String(255)) #书的封面
+    logo = db.Column(db.String(255))  # 书的封面
     translator = db.Column(db.String(255))  # 译者
     publisher = db.Column(db.String(255))  # 出版社
     isbn = db.Column(db.String(100))  # ISBN号
@@ -30,7 +31,7 @@ class Book(db.Model):
     book_intro = db.Column(db.Text)  # 内容简介
     author_intro = db.Column(db.Text)  # 作者简介
     create_time = db.Column(db.DateTime, default=datetime.now)
-    is_from = db.Column(db.String(255),default=u'douban') # douban or diy
+    is_from = db.Column(db.String(255), default=u'douban')  # douban or diy
     tags = db.relationship('Tag', secondary=books_tags,
                            backref=db.backref('books', lazy='dynamic'))
     categories = db.relationship('Category', secondary=books_categories,
@@ -104,3 +105,40 @@ class PushRecord(db.Model):
 
     def __init__(self, *args, **kwargs):
         super(PushRecord, self).__init__(*args, **kwargs)
+
+
+class UploadRecord(db.Model):
+    __tablename__ = 'upload_records'
+    id = db.Column(db.String(255), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    book_edition_id = db.Column(db.Integer, db.ForeignKey('book_editions.id'))
+    download_count = db.Column(db.Integer, default=0)
+    push_count = db.Column(db.Integer, default=0)
+    create_time = db.Column(db.DateTime, default=datetime.now)
+
+    def __init__(self, *args, **kwargs):
+        super(UploadRecord, self).__init__(*args, **kwargs)
+
+
+class DownloadRecord(db.Model):
+    __tablename__ = 'download_records'
+    id = db.Column(db.String(255), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    book_edition_id = db.Column(db.Integer, db.ForeignKey('book_editions.id'))
+    user_agent = db.Column(db.String())
+    create_time = db.Column(db.DateTime, default=datetime.now)  # 下载时间
+
+    def __init__(self, *args, **kwargs):
+        super(DownloadRecord, self).__init__(*args, **kwargs)
+
+
+class CheckinRecord(db.Model):
+    __tablename__ = 'checkin_records'
+    id = db.Column(db.String(255), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    score = db.Column(db.Integer, default=0)
+    total_score = db.Column(db.Integer, default=0)
+    create_time = db.Column(db.DateTime, default=datetime.now)  # 下载时间
+
+    def __init__(self, *args, **kwargs):
+        super(CheckinRecord, self).__init__(*args, **kwargs)

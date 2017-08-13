@@ -16,13 +16,16 @@ class Config():
     WTF_CSRF_ENABLED = True
     ITEMS_PER_PAGE = 10
 
-    UPLOAD_FOLDER = basedir + os.sep + 'uploads'
-    UPLOAD_BOOK_FOLDER = UPLOAD_FOLDER + os.sep + 'books'
-    UPLOAD_COVER_FOLDER = UPLOAD_FOLDER + os.sep + 'covers'
+    MAX_CONTENT_LENGTH = 60 * 1024 * 1024  # 全站禁止上传附件限制60MB以下
 
+    UPLOAD_FOLDER = basedir + os.sep + 'uploads'
+
+    UPLOAD_BOOK_FOLDER = UPLOAD_FOLDER + os.sep + 'books'
     ALLOWED_EXTENSIONS = set(['mobi', 'epub', 'txt', 'pdf'])
     ALLOWED_BOOK_SIZE = 50 * 1024 * 1024  # 上传图书大小50MB
-    MAX_CONTENT_LENGTH = 60 * 1024 * 1024  # 全站禁止上传附件限制60MB以下
+
+    UPLOAD_LOGO_FOLDER = UPLOAD_FOLDER + os.sep + 'logos'
+    ALLOWED_LOGO_SIZE = 2 * 1024 * 1024
 
 
 class DevelopmentConfig(Config):

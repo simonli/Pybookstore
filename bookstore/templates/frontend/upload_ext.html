@@ -1,0 +1,81 @@
+{% extends "layout.html" %}
+{% from "_macros.html" import render_errors %}
+{% block content %}
+    <div class="row" style="margin-bottom: 10px;">
+        <ul class="nav nav-tabs">
+            <li class=''>
+                <a href="{{ url_for('frontend.upload') }}">豆瓣</a>
+            </li>
+            <li class='active'>
+                <a href="{{ url_for('frontend.upload_ext') }}">自定义</a>
+            </li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <form method="POST" action="{{ url_for("frontend.upload_ext") }}" enctype="multipart/form-data">
+                {{ form.csrf_token }}
+                <table class="table table-hover table-bordered table-condensed">
+                    <tr class="required">
+                        <td>书名:</td>
+                        <td>{{ form.name }}{{ render_errors(form.name) }}
+                        </td>
+                    </tr>
+                    <tr class="required">
+                        <td>作者:</td>
+                        <td>{{ form.author }}{{ render_errors(form.author) }}
+                        </td>
+                    </tr>
+                    <tr class="required">
+                        <td>内容简介:</td>
+                        <td>{{ form.book_intro }}{{ render_errors(form.book_intro) }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>标签:</td>
+                        <td>{{ form.tags }}多个标签用英文逗号(,)分隔
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>封面图片:</td>
+                        <td>{{ form.logo }}{{ render_errors(form.logo) }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>译者:</td>
+                        <td>{{ form.translator }}</td>
+                    </tr>
+                    <tr>
+                        <td>出版社:</td>
+                        <td>{{ form.publisher }}</td>
+                    </tr>
+                    <tr>
+                        <td>ISBN:</td>
+                        <td>{{ form.isbn }}</td>
+                    </tr>
+                    <tr class="required">
+                        <td>文件:</td>
+                        <td>{{ form.book_file }}
+                            <span>支持mobi,epub,pdf,txt格式，不超过100MB.</span>
+                            {{ render_errors(form.book_file) }}
+                            {% if errors %}
+                                {% for e in errors %}
+                                    <p class="help-block has-error">{{ e }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>版本简介:</td>
+                        <td>{{ form.book_edition_commnet }}</td>
+                    </tr>
+                </table>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-large">
+                        <i class="icon-ok icon-white"></i>提交
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

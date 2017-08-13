@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-2">
+            {{ current_user.avatar }}
+        </div>
+        <div class="col-md-8">
+            <h3>{{ current_user.username }}</h3>
+            <p class="muted">加入时间：{{ current_user.create_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+            <p class="muted">账号类型：{{ current_user.role.name }}</p>
+            <a class="btn btn-info btn-small" href="/accounts/settings/info/"><i class="fa fa-sliders"
+                                                                                 aria-hidden="true"></i>设置</a>
+        </div>
+    </div>
+{% endblock %}
