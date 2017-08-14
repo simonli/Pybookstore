@@ -26,7 +26,7 @@ def book(id):
     book = Book.query.get(id)
     if book:
         book_tags = book.tags
-        related_books = Book.query.filter()
+        related_books = Book.query.filter().all()
     else:
         flash(u'书籍不存在.')
     return render_template('frontend/book.html')
@@ -87,8 +87,15 @@ def upload():
                 tag_list = book_info['tags']
 
             # Tags
+            db_tag_obj_list = Tag.query.filter(Tag.name.in_(tag_list)).all()
+            db_tag_list = [x.name for x in db_tag_obj_list]
+            # insert new tag and bind to book
             for book_tag in tag_list:
-                book.tags.append(Tag(name=book_tag))
+                if book_tag not in db_tag_list:
+                    book.tags.append(Tag(name=book_tag))
+            # bind exist tag
+            for book_tag_obj in db_tag_obj_list:
+                book.tags.append(book_tag_obj)
 
             # BookFile Object
             be = BookEdition()
@@ -174,8 +181,16 @@ def upload_ext():
             tags = form.tags.data
             tags_temp = tags.replace(u'，', ',')
             tag_list = tags_temp.split(',')
-            for x in tag_list:
-                book.tags.append(Tag(name=x))
+
+            db_tag_obj_list = Tag.query.filter(Tag.name.in_(tag_list)).all()
+            db_tag_list = [x.name for x in db_tag_obj_list]
+            # insert new tag and bind to book
+            for book_tag in tag_list:
+                if book_tag not in db_tag_list:
+                    book.tags.append(Tag(name=book_tag))
+            # bind exist tag
+            for book_tag_obj in db_tag_obj_list:
+                book.tags.append(book_tag_obj)
 
             # BookFile Object
             be = BookEdition()
