@@ -1,15 +1,16 @@
 # -*- coding:utf-8 -*-
 import cStringIO
 
-from flask import Blueprint, request, render_template, redirect, url_for, flash, abort
+import os
+from flask import Blueprint, request, render_template, redirect, url_for, flash, abort, current_app
 from flask import Response, session
 from flask_login import login_user, logout_user, login_required, current_user
 
 from bookstore.extensions import db
-from bookstore.models.user import User, Role
-from bookstore.utils import generate_verification_code
-from bookstore.utils import unique_id
-from .forms import RegisterForm, LoginForm, ChangePasswordForm
+from bookstore.models.user import User, Role, PushSetting
+from bookstore.utils import generate_verification_code, get_extension, get_namebasetime
+from .forms import RegisterForm, LoginForm, ChangePasswordForm, SettingsUsernameForm, SettingsEmailForm, \
+    SettingsPushForm, SettingsAvatarForm
 
 mod = Blueprint('account', __name__)
 
@@ -25,7 +26,6 @@ def register():
     user = User()
     form = RegisterForm(obj=user)
     if form.validate_on_submit():
-        user.id = unique_id()
         user.username = form.username.data
         user.password = form.password.data
         user.email = form.email.data
@@ -106,83 +106,87 @@ def profile(username):
 @mod.route('/settings/push')
 @login_required
 def settings_push():
-    pass
+    form = SettingsPushForm(obj=current_user)
+    if form.validate_on_submit():
+        push_setting = PushSetting()
+        push_setting.user = current_user
+        push_setting.email = form.email.data
+        db.session.add(push_setting)
+        db.session.commit()
+        flash(u'推送邮箱添加成功.')
+        return redirect(url_for('.settings_push'))
+    else:
+        push_records = PushSetting.query.filter_by(user_id=current_user.id).order_by(
+            PushSetting.create_time.desc()).all()
+        return render_template('account/settings_push.html', push_records=push_records)
 
 
 @mod.route('/settings/username')
 @login_required
 def settings_username():
-    error = None
-    if request.method == 'POST':
-        username_new = request.form['username']
-        if username_new:
-            user = User.query.filter_by(username=username_new.strip()).first()
-            if not user:
-                user = current_user
-                user.username = username_new
-                current_user.username = username_new
-                db.session.add(user)
-                db.session.commit()
-                flash(u'用户名修改完成, 您新的用户名是:%s' % username_new)
-                return redirect(url_for('.settings_username'))
-            else:
-                error = u'该用户名: %s 已经存在, 请您换一个.' % username_new
-                return render_template('account/settings_username.html', error=error)
-        else:
-            error = u'用户名不能为空.'
-            return render_template('account/settings_username.html', error=error)
+    form = SettingsUsernameForm(obj=current_user)
+    if form.validate_on_submit():
+        user = current_user
+        user.username = form.username.data
+        current_user.username = form.username.data
+        db.session.add(user)
+        db.session.commit()
+        flash(u'用户名修改完成, 新的用户名是:%s' % form.username.data)
+        return redirect(url_for('.settings_username'))
     else:
-        return render_template('account/settings_username.html', error=error)
+        return render_template('account/settings_username.html')
 
 
 @mod.route('/settings/email')
 @login_required
 def settings_email():
-    error = None
-    if request.method == 'POST':
-        email_new = request.form['email']
-        if email_new:
-            user = User.query.filter_by(email=email_new.strip()).first()
-            if not user:
-                user = current_user
-                user.email = email_new
-                current_user.email = email_new
-                db.session.add(user)
-                db.session.commit()
-                flash(u'登录邮箱修改完成, 您新的登录邮箱是:%s' % email_new)
-                return redirect(url_for('.settings_email'))
-            else:
-                error = u'该邮箱: %s 已经存在, 请您换一个.' % email_new
-                return render_template('account/settings_email.html', error=error)
-        else:
-            error = u'登录邮箱不能为空.'
-            return render_template('account/settings_email.html', error=error)
+    form = SettingsEmailForm(obj=current_user)
+    if form.validate_on_submit():
+        user = current_user
+        user.email = form.email.data
+        current_user.email = form.email.data
+        db.session.add(user)
+        db.session.commit()
+        flash(u'登陆邮箱修改完成, 新的登录邮箱是:%s' % form.email.data)
+        return redirect(url_for('.settings_email'))
     else:
-        return render_template('account/settings_email.html', error=error)
+        return render_template('account/settings_email.html')
 
 
 @mod.route('/settings/avatar')
 @login_required
 def settings_avatar():
-    pass
+    form = SettingsAvatarForm()
+    if form.validate_on_submit():
+        if 'avatar' in request.files:
+            file = form.avatar.data
+            ext = get_extension(file.filename)
+            upload_folder = current_app.config.get('UPLOAD_AVATAR_FOLDER')
+            if not os.path.exists(upload_folder):
+                os.makedirs(upload_folder)
+            dest_filename = get_namebasetime() + '.' + ext
+            dest_filepath = os.path.join(upload_folder, dest_filename)
+            file.seek(0)
+            file.save(dest_filepath)  # 保存文件
+            flash(u'头像上传成功.')
+            return redirect(url_for(".settings_avatar"))
+    else:
+        u = User.query.get(current_user.id)
+        return render_template('account/settings_avatar.html', user=u)
 
 
 @mod.route('/settings/change_password')
 @login_required
 def settings_change_password():
-    form = ChangePasswordForm()
+    form = ChangePasswordForm(obj=current_user)
     error = None
     if form.validate_on_submit():
         user = current_user
-        if user.verify_password(form.old_password.data):
-            user.password = form.new_password.data
-            db.session.add(user)
-            db.session.commit()
-            flash(u'密码修改成功.')
-            return redirect('.settings_change_password')
-        else:
-            error = u'旧密码不正确.'
-            return render_template('account/change_password.html', error=error)
+        user.password = form.new_password.data
+        db.session.add(user)
+        db.session.commit()
+        flash(u'密码修改成功.')
+        return redirect('.settings_change_password')
     else:
         return render_template('account/change_password.html', error=error)
 

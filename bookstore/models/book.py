@@ -16,7 +16,7 @@ books_categories = db.Table('book2category',
 
 class Book(db.Model):
     __tablename__ = 'books'
-    id = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.String(255), nullable=False, index=True)  # 书名
     author = db.Column(db.String(255))  # 作者
     logo = db.Column(db.String(255))  # 书的封面
@@ -45,7 +45,7 @@ class Book(db.Model):
 
 class BookEdition(db.Model):
     __tablename__ = 'book_editions'
-    id = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey('books.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))  # 上传者
     filename = db.Column(db.String(255), nullable=False)
@@ -63,7 +63,7 @@ class BookEdition(db.Model):
 
 class BookEditionComment(db.Model):
     __tablename__ = 'book_edition_comments'
-    id = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     book_edition_id = db.Column(db.Integer, db.ForeignKey('book_editions.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))  # 评价人
     at_user_id = db.Column(db.Integer, db.ForeignKey('users.id'))  # 评价哪个用户
@@ -76,7 +76,7 @@ class BookEditionComment(db.Model):
 
 class Tag(db.Model):
     __tablename__ = 'tags'
-    id = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
 
     def __init__(self, *args, **kwargs):
@@ -85,7 +85,7 @@ class Tag(db.Model):
 
 class Category(db.Model):
     __tablename__ = 'categories'
-    id = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
 
     def __init__(self, *args, **kwargs):
@@ -94,7 +94,7 @@ class Category(db.Model):
 
 class PushRecord(db.Model):
     __tablename__ = 'push_records'
-    id = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     book_edition_id = db.Column(db.Integer, db.ForeignKey('book_editions.id'))
     from_platform = db.Column(db.String(255))
@@ -109,7 +109,7 @@ class PushRecord(db.Model):
 
 class UploadRecord(db.Model):
     __tablename__ = 'upload_records'
-    id = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     book_edition_id = db.Column(db.Integer, db.ForeignKey('book_editions.id'))
     download_count = db.Column(db.Integer, default=0)
@@ -122,7 +122,7 @@ class UploadRecord(db.Model):
 
 class DownloadRecord(db.Model):
     __tablename__ = 'download_records'
-    id = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     book_edition_id = db.Column(db.Integer, db.ForeignKey('book_editions.id'))
     user_agent = db.Column(db.String())
@@ -134,7 +134,7 @@ class DownloadRecord(db.Model):
 
 class CheckinRecord(db.Model):
     __tablename__ = 'checkin_records'
-    id = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     score = db.Column(db.Integer, default=0)
     total_score = db.Column(db.Integer, default=0)

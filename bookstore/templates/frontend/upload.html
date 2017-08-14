@@ -22,11 +22,6 @@
                         <td>{{ form.book_file }}
                             <span>支持mobi,epub,pdf,txt格式，不超过100MB.</span>
                             {{ render_errors(form.book_file) }}
-                            {% if errors %}
-                                {% for e in errors %}
-                                    <p class="help-block has-error">{{ e }}</p>
-                                {% endfor %}
-                            {% endif %}
                         </td>
                     </tr>
                     <tr>

@@ -4,7 +4,6 @@ from datetime import datetime
 from flask_login import UserMixin
 
 from bookstore.extensions import db, login_manager, bcrypt
-from bookstore.utils import unique_id
 
 
 class Permission:
@@ -16,7 +15,7 @@ class Permission:
 
 class Role(db.Model):
     __tablename__ = 'roles'
-    id = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.String(50), nullable=False, unique=True, index=True)
     show_name = db.Column(db.String(100))
     default = db.Column(db.Boolean, default=False, index=True)
@@ -38,7 +37,6 @@ class Role(db.Model):
             role = Role.query.filter_by(name=r).first()
             if role is None:
                 role = Role(name=r)
-            role.id = unique_id()
             role.permissions = roles[r][0]
             role.default = roles[r][1]
             role.show_name = roles[r][2]
@@ -51,9 +49,9 @@ class Role(db.Model):
 
 class PushSetting(db.Model):
     __tablename__ = 'push_settings'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    dest_email = db.Column(db.String(255))
+    email = db.Column(db.String(255))
     create_time = db.Column(db.DateTime, default=datetime.now)
     is_default = db.Column(db.Integer, default=0)  # 1 is default
 
@@ -63,7 +61,7 @@ class PushSetting(db.Model):
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
-    id = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     username = db.Column(db.String(50), nullable=False, unique=True, index=True)
     _password_hash = db.Column('password', db.String(255), nullable=False, server_default=u'')
     email = db.Column(db.String(255), nullable=False)
@@ -107,7 +105,6 @@ class User(UserMixin, db.Model):
     @staticmethod
     def create_admin():
         u = User()
-        u.id = unique_id()
         u.username = 'admin'
         u.password = 'putishuyuan'
         u.realname = 'Admin'

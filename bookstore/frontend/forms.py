@@ -2,16 +2,20 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import StringField, TextAreaField
-from wtforms.validators import input_required as ir
+from wtforms.validators import input_required as ir, url
+from bookstore.extensions import NewURL, FileSizeAllowed
 
 
 class UploadForm(FlaskForm):
     book_file = FileField(u'文件', validators=[
         FileRequired(u'请选择您要上传的图书文件.'),
-        FileAllowed(['mobi', 'epub', 'pdf', 'txt'], u'不支持的图书格式,请上传mobi,epub,pdf,txt格式的图书.')
+        FileAllowed(set(['mobi', 'epub', 'txt', 'pdf']), u'不支持的图书格式,请上传mobi,epub,pdf,txt格式的图书3.'),
+        FileSizeAllowed(50 * 1024 * 1024, u'图书大小不能超过50MB.')
     ])
     douban_url = StringField(u'豆瓣链接', validators=[
-        ir(u'豆瓣链接不能为空,请先在右侧搜索图书，然后点击图书的“复制链接”.')])
+        ir(u'豆瓣链接不能为空,请先在右侧搜索图书，然后点击图书的“复制链接”.'),
+        NewURL(message=u'URL无效')
+    ])
     book_edition_commnet = TextAreaField(u'版本简介')
 
     def __init__(self, *args, **kwargs):
@@ -23,14 +27,16 @@ class UploadFormExt(FlaskForm):
     author = StringField(u'作者:', validators=[ir(u'作者不能为空.')])
     book_intro = TextAreaField(u'内容简介:', validators=[ir(u'内容简介不能为空.')])
     logo = FileField(u'图书封面', validators=[
-        FileAllowed(['jpg', 'png', 'gif', 'jpeg'], u'请上传jpg,jpeg,png,gif格式的图书封面.')
+        FileAllowed(['jpg', 'png', 'gif', 'jpeg'], u'请上传jpg,jpeg,png,gif格式的图书封面.'),
+        FileSizeAllowed(50 * 1024 * 1024, u'图书封面不能超过2MB.')
     ])
     translator = StringField(u'译者:')
     publisher = StringField(u'出版社:')
     isbn = StringField(u'ISBN:')
     book_file = FileField(u'文件', validators=[
         FileRequired(u'请选择您要上传的图书文件.'),
-        FileAllowed(['mobi', 'epub', 'pdf', 'txt'], u'不支持的图书格式,请上传mobi,epub,pdf,txt格式的图书.')
+        FileAllowed(['mobi', 'epub', 'pdf', 'txt'], u'不支持的图书格式,请上传mobi,epub,pdf,txt格式的图书.'),
+        FileSizeAllowed(50 * 1024 * 1024, u'图书大小不能超过50MB.')
     ])
     book_edition_commnet = TextAreaField(u'版本简介')
     tags = StringField(u'标签')

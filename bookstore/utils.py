@@ -115,7 +115,10 @@ def get_book_info(book_url):
         tag_list = []
         tag_node_list = soup.find_all(class_=re.compile('tag'))
         for x in tag_node_list:
-            tag_list.append(bs4_get_text(x))
+            xx = bs4_get_text(x)
+            xx_list = re.split('\s+',xx)
+            for x3 in xx_list:
+                tag_list.append(x3)
         book['tags'] = tag_list
     return book
 

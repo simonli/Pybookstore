@@ -27,6 +27,8 @@ class Config():
     UPLOAD_LOGO_FOLDER = UPLOAD_FOLDER + os.sep + 'logos'
     ALLOWED_LOGO_SIZE = 2 * 1024 * 1024
 
+    UPLOAD_AVATAR_FOLDER = UPLOAD_FOLDER + os.sep + 'avatars'
+
 
 class DevelopmentConfig(Config):
     pass

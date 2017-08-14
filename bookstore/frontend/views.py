@@ -9,7 +9,7 @@ from flask_login import login_required
 
 from bookstore.extensions import db
 from bookstore.models.book import Book, BookEdition, BookEditionComment, Tag
-from bookstore.utils import get_book_info, get_md5sum, unique_id, get_extension, get_namebasetime
+from bookstore.utils import get_book_info, get_md5sum, get_extension, get_namebasetime, unique_id
 from .forms import UploadForm, UploadFormExt
 
 mod = Blueprint('frontend', __name__)
@@ -21,12 +21,28 @@ def index():
     return render_template('frontend/index.html')
 
 
+@mod.route('/book/<int:id>/')
+def book(id):
+    book = Book.query.get(id)
+    if book:
+        book_tags = book.tags
+        related_books = Book.query.filter()
+    else:
+        flash(u'书籍不存在.')
+    return render_template('frontend/book.html')
+
+
 @mod.route('/upload/', methods=['GET', 'POST'])
 @login_required
 def upload():
     form = UploadForm()
-    errors = []
     if form.validate_on_submit():
+        douban_url = form.douban_url.data
+        douban_id = douban_url[douban_url.find('subject') + 8:douban_url.rfind('/')]
+        b = Book.query.filter_by(douban_id=douban_id).first()
+        if b:
+            form.book_file.errors.append(u'该书已经存在.%s' % url_for('.book,id=' + b.id))
+            return render_template('frontend/upload.html', form=form)
         # 上传文件
         if 'book_file' in request.files:
             upfile = form.book_file.data
@@ -40,24 +56,16 @@ def upload():
             dest_filepath = os.path.join(upload_folder, dest_filename)
             upfile.seek(0)
             size = len(upfile.read())
-            if file_ext not in current_app.config.get('ALLOWED_EXTENSIONS'):
-                errors.append(u'不支持的图书格式,请上传mobi,epub,pdf,txt格式的图书.')
-            if size > current_app.config.get('ALLOWED_BOOK_SIZE'):
-                errors.append(u'图书大小不能超过50MB.')
-            if errors:
-                return render_template('frontend/upload.html', form=form, errors=errors)
-
             upfile.seek(0)
             upfile.save(dest_filepath)  # 保存文件
             file_md5sum = get_md5sum(dest_filepath)
             be_obj = BookEdition.query.filter_by(md5sum=file_md5sum).first()
             if be_obj:
                 os.remove(dest_filepath)
-                errors.append(u'图书已经存在,<a href="%s">' % be_obj.id)
-                return render_template('frontend/upload.html', form=form, errors=errors)
+                form.book_file.errors.append(u'图书已经存在,<a href="%s">' % url_for('.book_editon,id=' % be_obj.id))
+                return render_template('frontend/upload.html', form=form)
             # Book Object
             book = Book()
-            book.id = unique_id()
             book.douban_id = request.form['douban_id']
             book.douban_url = form.douban_url.data
             book.name = dest_filename
@@ -80,11 +88,10 @@ def upload():
 
             # Tags
             for book_tag in tag_list:
-                book.tags.append(Tag(id=unique_id(), name=book_tag))
+                book.tags.append(Tag(name=book_tag))
 
             # BookFile Object
             be = BookEdition()
-            be.id = unique_id()
             be.filename = dest_filename
             be.original_filename = upfile.filename
             be.size = size
@@ -94,7 +101,6 @@ def upload():
 
             # BookEditionComment Object
             bec = BookEditionComment()
-            bec.id = unique_id()
             bec.book_edition = be
             bec.comment = form.book_edition_commnet.data
             bec.user_id = current_user.id
@@ -105,14 +111,20 @@ def upload():
             db.session.commit()
         flash(u'图书上传成功.')
         return redirect(url_for('frontend.index'))
-    return render_template('frontend/upload.html', form=form, errors=errors)
+    return render_template('frontend/upload.html', form=form)
 
 
 @mod.route('/upload/ext/', methods=['GET', 'POST'])
 def upload_ext():
     form = UploadFormExt()
-    errors = []
     if form.validate_on_submit():
+        douban_url = form.douban_url.data
+        douban_id = douban_url[douban_url.find('subject') + 8:douban_url.rfind('/')]
+        b = Book.query.filter_by(douban_id=douban_id).first()
+        if b:
+            form.book_file.errors.append(u'该书已经存在.%s' % url_for('.book,id=' + b.id))
+            return render_template('frontend/upload_ext.html', form=form)
+
         # 上传文件
         if 'book_file' in request.files:
             upfile = form.book_file.data
@@ -125,21 +137,15 @@ def upload_ext():
             dest_filepath = os.path.join(upload_folder, dest_filename)
             upfile.seek(0)
             size = len(upfile.read())
-            if file_ext not in current_app.config.get('ALLOWED_EXTENSIONS'):
-                errors.append(u'不支持的图书格式,请上传mobi,epub,pdf,txt格式的图书.')
-            if size > current_app.config.get('ALLOWED_BOOK_SIZE'):
-                errors.append(u'图书大小不能超过50MB.')
-            if errors:
-                return render_template('frontend/upload_ext.html', form=form, errors=errors)
 
             upfile.seek(0)
             upfile.save(dest_filepath)  # 保存文件
             file_md5sum = get_md5sum(dest_filepath)
             be_obj = BookEdition.query.filter_by(md5sum=file_md5sum).first()
             if be_obj:
-                errors.append(u'图书已经存在,<a href="%s">' % be_obj.id)
+                form.book_file.errors.append(u'图书已经存在,<a href="%s">' % url_for('.book_editon,id=' % be_obj.id))
                 os.remove(dest_filepath)
-                return render_template('frontend/upload_ext.html', form=form, errors=errors)
+                return render_template('frontend/upload_ext.html', form=form)
 
             if 'logo' in request.files:
                 logofile = form.logo.data
@@ -149,20 +155,12 @@ def upload_ext():
                     os.makedirs(upload_logo_folder)
                 dest_logo_filename = get_namebasetime() + '.' + logofile_ext
                 dest_logo_filepath = os.path.join(upload_logo_folder, dest_logo_filename)
-                logofile.seek(0)
-                logo_size = len(logofile.read())
-
-                if logo_size > current_app.config.get('ALLOWED_LOGO_SIZE'):
-                    errors.append(u'图书大小不能超过2MB.')
-                if errors:
-                    return render_template('frontend/upload_ext.html', form=form, errors=errors)
 
                 logofile.seek(0)
                 logofile.save(dest_logo_filepath)  # 保存文件
 
             # Book Object
             book = Book()
-            book.id = unique_id()
             book.name = upfile.filename
             book.author = form.author.data
             book.translator = form.translator.data
@@ -177,11 +175,10 @@ def upload_ext():
             tags_temp = tags.replace(u'，', ',')
             tag_list = tags_temp.split(',')
             for x in tag_list:
-                book.tags.append(Tag(id=unique_id(), name=x))
+                book.tags.append(Tag(name=x))
 
             # BookFile Object
             be = BookEdition()
-            be.id = unique_id()
             be.filename = dest_filename
             be.original_filename = upfile.filename
             be.size = size
@@ -191,7 +188,6 @@ def upload_ext():
 
             # BookEditionComment Object
             bec = BookEditionComment()
-            bec.id = unique_id()
             bec.book_edition = be
             bec.comment = form.book_edition_commnet.data
             bec.user_id = current_user.id
@@ -202,7 +198,7 @@ def upload_ext():
             db.session.commit()
         flash(u'图书上传成功.')
         return redirect(url_for('frontend.index'))
-    return render_template('frontend/upload_ext.html', form=form, errors=errors)
+    return render_template('frontend/upload_ext.html', form=form)
 
 
 @mod.route('/search/douban/')
