@@ -17,6 +17,7 @@ mod = Blueprint('frontend', __name__)
 
 @mod.route('/')
 @mod.route('/index')
+@login_required
 def index():
     page = request.args.get('page', 1, type=int)
     pagination = Book.query.order_by(Book.douban_rating_score.desc(), Book.douban_rating_people.desc()) \
@@ -25,7 +26,7 @@ def index():
     return render_template('frontend/index.html', books=books, pagination=pagination, endpoint='.index')
 
 
-@mod.route('/search', method=['GET', 'POST'])
+@mod.route('/search', methods=['GET', 'POST'])
 @login_required
 def search():
     page = request.args.get('page', 1, type=int)

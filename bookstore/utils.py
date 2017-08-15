@@ -6,11 +6,13 @@ import re
 import string
 import uuid
 from datetime import datetime
+from urlparse import urlparse, urljoin
 
 import bs4
 import requests
 from PIL import Image, ImageFont, ImageDraw
 from bs4 import BeautifulSoup
+from flask import request
 
 current_dir = os.path.abspath(os.path.dirname(__file__))
 
@@ -156,6 +158,13 @@ def get_extension(filename):
 
 def get_namebasetime():
     return '%s%s' % (datetime.strftime(datetime.now(), '%Y%m%d%H%M%S'), datetime.now().microsecond)
+
+
+def is_safe_url(target):
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and \
+           ref_url.netloc == test_url.netloc
 
 
 if __name__ == "__main__":

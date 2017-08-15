@@ -22,7 +22,7 @@ def create_app(config_name=None, blueprints=None):
 
     configure_extensions(app)
     configure_errorhandlers(app)
-    # configure_before_handlers(app)
+    configure_before_handlers(app)
     configure_blueprints(app, blueprints)
 
     return app

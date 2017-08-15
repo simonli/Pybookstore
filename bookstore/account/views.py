@@ -1,14 +1,14 @@
 # -*- coding:utf-8 -*-
 import cStringIO
-
 import os
+
 from flask import Blueprint, request, render_template, redirect, url_for, flash, abort, current_app
 from flask import Response, session
 from flask_login import login_user, logout_user, login_required, current_user
 
 from bookstore.extensions import db
 from bookstore.models.user import User, Role, PushSetting
-from bookstore.utils import generate_verification_code, get_extension, get_namebasetime
+from bookstore.utils import generate_verification_code, get_extension, get_namebasetime, is_safe_url
 from .forms import RegisterForm, LoginForm, ChangePasswordForm, SettingsUsernameForm, SettingsEmailForm, \
     SettingsPushForm, SettingsAvatarForm
 
@@ -40,9 +40,9 @@ def register():
 
 @mod.route('/login/', methods=['GET', 'POST'])
 def login():
-    return_url = request.args.get("next") or request.form.get("next")
+    next = request.args.get("next", '')
     print "8" * 100
-    print return_url
+    print next
     form = LoginForm()
     if form.validate_on_submit():
         if session['verifycode'].lower() != form.verifycode.data.lower():
@@ -55,14 +55,17 @@ def login():
                 flash(u'登陆成功！欢迎回来，%s!' % user.username, 'success')
                 del session['verifycode']
 
-                return redirect(return_url)
+                if not is_safe_url(next):
+                    return abort(400)
+
+                return redirect(next or url_for('frontend.index'))
             else:
                 flash(u'密码不正确。', 'danger')
         else:
             flash(u'用户不存在。', 'danger')
     # if form.errors:
     #     flash(u'登陆失败，请尝试重新登陆.', 'danger')
-    return render_template('account/login.html', form=form, next=return_url)
+    return render_template('account/login.html', form=form, next=next)
 
 
 @mod.route('/logout/')
