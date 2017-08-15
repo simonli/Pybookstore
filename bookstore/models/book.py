@@ -25,7 +25,7 @@ class Book(db.Model):
     isbn = db.Column(db.String(100))  # ISBN号
     douban_id = db.Column(db.Integer, unique=True, index=True)  # 豆瓣ID
     douban_url = db.Column(db.String(255))
-    douban_rating_score = db.Column(db.String(255))  # 豆瓣得分
+    douban_rating_score = db.Column(db.Integer, default=0)  # 豆瓣得分
     douban_rating_people = db.Column(db.Integer, default=0)  # 豆瓣评论人数
     book_catalog = db.Column(db.Text)  # 图书目录
     book_intro = db.Column(db.Text)  # 内容简介

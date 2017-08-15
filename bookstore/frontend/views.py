@@ -18,18 +18,41 @@ mod = Blueprint('frontend', __name__)
 @mod.route('/')
 @mod.route('/index')
 def index():
-    return render_template('frontend/index.html')
+    page = request.args.get('page', 1, type=int)
+    pagination = Book.query.order_by(Book.douban_rating_score.desc(), Book.douban_rating_people.desc()) \
+        .paginate(page, per_page=current_app.config.get('ITEMS_PER_PAGE'), error_out=False)
+    books = pagination.items
+    return render_template('frontend/index.html', books=books, pagination=pagination, endpoint='.index')
+
+
+@mod.route('/search', method=['GET', 'POST'])
+@login_required
+def search():
+    page = request.args.get('page', 1, type=int)
+    keyword = request.form.get('keyword', '')
+    query_str = '%' + keyword + '%'
+    rule = db.or_(Book.name.like(query_str), Book.author.like(query_str),
+                  Book.isbn.like(query_str), Book.publisher.like(query_str))
+    pagination = Book.query.filter(rule).order_by(Book.douban_rating_score.desc(), Book.douban_rating_people.desc()) \
+        .paginate(page, per_page=current_app.config.get('ITEMS_PER_PAGE'), error_out=False)
+    books = pagination.items
+    return render_template('frontend/index.html', books=books, keyword=keyword, pagination=pagination,
+                           endpoint='.search')
 
 
 @mod.route('/book/<int:id>/')
+@login_required
 def book(id):
     book = Book.query.get(id)
+    related_books = set()
     if book:
-        book_tags = book.tags
-        related_books = Book.query.filter().all()
+        for tag in book.tags:
+            for book_obj in tag.books:
+                if not book_obj is book:
+                    related_books.add(book_obj)
     else:
         flash(u'书籍不存在.')
-    return render_template('frontend/book.html')
+    return render_template('frontend/book.html', book=book, related_books=list(related_books))
 
 
 @mod.route('/upload/', methods=['GET', 'POST'])

@@ -106,12 +106,18 @@ class User(UserMixin, db.Model):
     def create_admin():
         u = User()
         u.username = 'admin'
-        u.password = 'putishuyuan'
-        u.realname = 'Admin'
+        u.password = 'admin'
         u.email = 'admin@localhost'
         u.role = Role.query.filter_by(name='Admin').first()
-        u.division_id = 0
+
+        u1 = User()
+        u1.username = 'simon'
+        u1.password = 'cncode'
+        u1.email = 'simonli@live.com'
+        u1.role = Role.query.filter_by(name='Ultra').first()
+
         db.session.add(u)
+        db.session.add(u1)
         db.session.commit()
 
 

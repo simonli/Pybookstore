@@ -104,13 +104,16 @@ def get_book_info(book_url):
         if relate_info.find(id="dir_" + subject_id + "_full"):
             book['book_catalog'] = bs4_get_text(relate_info.find(id="dir_" + subject_id + "_full"))
 
-        book['rating_score'] = ''
+        book['rating_score'] = 0
         if soup.find(class_=re.compile('ll rating_num')):
             book['rating_score'] = bs4_get_text(soup.find(class_=re.compile('ll rating_num')))
 
-        book['rating_people'] = ''
+        book['rating_people'] = 0
         if soup.find(class_=re.compile('rating_people')):
-            book['rating_people'] = bs4_get_text(soup.find(class_=re.compile('rating_people')))
+            rating_people = bs4_get_text(soup.find(class_=re.compile('rating_people')))
+            pos = rating_people.find(u'人评价')
+            if pos:
+                book['rating_people'] = rating_people[:pos]
 
         tag_list = []
         tag_node_list = soup.find_all(class_=re.compile('tag'))
