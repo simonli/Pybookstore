@@ -3,7 +3,7 @@ from flask import Flask, request, redirect, jsonify, flash, url_for, render_temp
 
 from bookstore.account import account
 from bookstore.book import book
-from bookstore.extensions import db, login_manager, bcrypt, migrate
+from bookstore.extensions import db, login_manager, bcrypt
 from bookstore.frontend import frontend
 from config import configs
 
@@ -34,7 +34,7 @@ def configure_extensions(app):
     db.init_app(app)
     login_manager.init_app(app)
     bcrypt.init_app(app)
-    migrate.init_app(app, db)
+    # migrate.init_app(app, db)
 
 
 def configure_before_handlers(app):

@@ -8,15 +8,14 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1, minimal-ui">
     <title>{% block title %}{% endblock %} - 系统</title>
-    <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/>
-    <link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet" type="text/css"/>
-    <link href="{{ url_for('static', filename='font-awesome/css/font-awesome.min.css') }}" rel="stylesheet"
+    <link href="{{ url_for('static', filename='lib/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet"
           type="text/css"/>
+    <link href="{{ url_for('static', filename='css/site.css') }}" rel="stylesheet" type="text/css"/>
     {% block css %}{% endblock %}
-    <script src="{{ url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/jquery.tmpl.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
-
+    <script src="{{ url_for('static', filename='lib/juery/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/jquery/jquery.tmpl.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/bootstrap/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/site.js') }}"></script>
 </head>
 <body>
 
