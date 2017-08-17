@@ -1,11 +1,14 @@
 # -*- coding:utf-8 -*-
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
-from wtforms import SelectField
-from flask_bcrypt import Bcrypt
-from wtforms.validators import Regexp, HostnameValidation, ValidationError, StopValidation
 import re
 
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+from wtforms import SelectField
+from wtforms.validators import Regexp, HostnameValidation, ValidationError, StopValidation
+
+migrate = Migrate()
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 login_manager = LoginManager()

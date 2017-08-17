@@ -4,6 +4,7 @@ from datetime import datetime
 from flask_login import UserMixin
 
 from bookstore.extensions import db, login_manager, bcrypt
+from bookstore.helper import utils
 
 
 class Permission:
@@ -72,6 +73,8 @@ class User(UserMixin, db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     create_time = db.Column(db.DateTime, default=datetime.now())
     push_settings = db.relationship(PushSetting, backref='user', lazy='dynamic')
+    point_count = db.Column(db.Integer, default=0)  # 总积分
+
 
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)
@@ -136,3 +139,19 @@ class UserCheckinRecord(db.Model):
 
     def __init__(self, *args, **kwargs):
         super(UserCheckinRecord, self).__init__(*args, **kwargs)
+
+
+POINT_SOURCE = utils.enum(PUSH='Push', DOWNLOAD='Download', UPLOAD='Upload')
+
+
+class UserPoint(db.Model):
+    __tablename__ = 'user_points'
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    point = db.Column(db.Integer, default=0)
+    point_source = db.Column(db.String(30))
+    source_id = db.Column(db.Integer)
+    create_time = db.Column(db.DateTime, default=datetime.now)
+
+    def __init__(self, *args, **kwargs):
+        super(UserPoint, self).__init__(*args, **kwargs)

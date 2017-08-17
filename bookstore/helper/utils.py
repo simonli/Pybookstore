@@ -53,6 +53,12 @@ def is_safe_url(target):
            ref_url.netloc == test_url.netloc
 
 
+def enum(*sequential, **named):
+    enums = dict(zip(sequential, range(len(sequential))), **named)
+    enums['to_dict'] = dict((key, value) for key, value in enums.iteritems())
+    return type('Enum', (), enums)
+
+
 if __name__ == "__main__":
     im = generate_verification_code()
     im.show()

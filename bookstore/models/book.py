@@ -112,8 +112,6 @@ class BookUploadRecord(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     book_edition_id = db.Column(db.Integer, db.ForeignKey('book_editions.id'))
-    download_count = db.Column(db.Integer, default=0)
-    push_count = db.Column(db.Integer, default=0)
     create_time = db.Column(db.DateTime, default=datetime.now)
 
     def __init__(self, *args, **kwargs):
