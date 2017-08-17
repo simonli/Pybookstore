@@ -2,7 +2,8 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import StringField, TextAreaField
-from wtforms.validators import input_required as ir, url
+from wtforms.validators import input_required as ir
+
 from bookstore.extensions import NewURL, FileSizeAllowed
 
 

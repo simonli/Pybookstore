@@ -58,7 +58,6 @@ class PushSetting(db.Model):
     def __init__(self, *args, **kwargs):
         super(PushSetting, self).__init__(*args, **kwargs)
 
-
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
@@ -69,7 +68,7 @@ class User(UserMixin, db.Model):
     last_login_time = db.Column(db.DateTime, default=datetime.now)
     last_login_ip = db.Column(db.String(50), default='')
     login_count = db.Column(db.Integer, nullable=False, default=0)
-    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    is_delete = db.Column(db.Integer, default=0)  # o-OK, 1-deleted
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     create_time = db.Column(db.DateTime, default=datetime.now())
     push_settings = db.relationship(PushSetting, backref='user', lazy='dynamic')
@@ -103,7 +102,7 @@ class User(UserMixin, db.Model):
         return self.role is not None and (self.role.permissions | permissions) == permissions
 
     @staticmethod
-    def create_admin():
+    def initial_admin():
         u = User()
         u.username = 'admin'
         u.password = 'admin'
@@ -114,7 +113,7 @@ class User(UserMixin, db.Model):
         u1.username = 'simon'
         u1.password = 'cncode'
         u1.email = 'simonli@live.com'
-        u1.role = Role.query.filter_by(name='Ultra').first()
+        u1.role = Role.query.filter_by(name='Admin').first()
 
         db.session.add(u)
         db.session.add(u1)
@@ -124,4 +123,16 @@ class User(UserMixin, db.Model):
 # callback function for flask-login extentsion
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(user_id)
+    return User.query.filter_by(is_delete=0).filter_by(id=user_id).first()
+
+
+class UserCheckinRecord(db.Model):
+    __tablename__ = 'user_checkin_records'
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    score = db.Column(db.Integer, default=0)
+    total_score = db.Column(db.Integer, default=0)
+    create_time = db.Column(db.DateTime, default=datetime.now)  # 下载时间
+
+    def __init__(self, *args, **kwargs):
+        super(UserCheckinRecord, self).__init__(*args, **kwargs)

@@ -2,6 +2,7 @@
 from flask import Flask, request, redirect, jsonify, flash, url_for, render_template
 
 from bookstore.account import account
+from bookstore.book import book
 from bookstore.extensions import db, login_manager, bcrypt
 from bookstore.frontend import frontend
 from config import configs
@@ -9,7 +10,8 @@ from config import configs
 DEFAULT_APP_NAME = 'bookstore'
 DEFAULT_BLUEPRINTS = (
     (frontend, ''),
-    (account, '/account')
+    (account, '/account'),
+    (book, '/book')
 )
 
 

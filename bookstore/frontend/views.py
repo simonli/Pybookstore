@@ -1,15 +1,13 @@
 # -*- coding:utf-8 -*-
 import os
 
-import requests
-from bs4 import BeautifulSoup
 from flask import current_app, Blueprint, request, render_template, redirect, url_for, flash, jsonify
 from flask_login import current_user
 from flask_login import login_required
 
 from bookstore.extensions import db
+from bookstore.helper import utils, douban
 from bookstore.models.book import Book, BookEdition, BookEditionComment, Tag
-from bookstore.utils import get_book_info, get_md5sum, get_extension, get_namebasetime, unique_id
 from .forms import UploadForm, UploadFormExt
 
 mod = Blueprint('frontend', __name__)
@@ -26,36 +24,6 @@ def index():
     return render_template('frontend/index.html', books=books, pagination=pagination, endpoint='.index')
 
 
-@mod.route('/search', methods=['GET', 'POST'])
-@login_required
-def search():
-    page = request.args.get('page', 1, type=int)
-    keyword = request.form.get('keyword', '')
-    query_str = '%' + keyword + '%'
-    rule = db.or_(Book.name.like(query_str), Book.author.like(query_str),
-                  Book.isbn.like(query_str), Book.publisher.like(query_str))
-    pagination = Book.query.filter(rule).order_by(Book.douban_rating_score.desc(), Book.douban_rating_people.desc()) \
-        .paginate(page, per_page=current_app.config.get('ITEMS_PER_PAGE'), error_out=False)
-    books = pagination.items
-    return render_template('frontend/index.html', books=books, keyword=keyword, pagination=pagination,
-                           endpoint='.search')
-
-
-@mod.route('/book/<int:id>/')
-@login_required
-def book(id):
-    book = Book.query.get(id)
-    related_books = set()
-    if book:
-        for tag in book.tags:
-            for book_obj in tag.books:
-                if not book_obj is book:
-                    related_books.add(book_obj)
-    else:
-        flash(u'书籍不存在.')
-    return render_template('frontend/book.html', book=book, related_books=list(related_books))
-
-
 @mod.route('/upload/', methods=['GET', 'POST'])
 @login_required
 def upload():
@@ -65,28 +33,27 @@ def upload():
         douban_id = douban_url[douban_url.find('subject') + 8:douban_url.rfind('/')]
         b = Book.query.filter_by(douban_id=douban_id).first()
         if b:
-            form.book_file.errors.append(u'该书已经存在.%s' % url_for('.book,id=' + b.id))
+            form.book_file.errors.append(u'该书已经存在:%s' % url_for('book.detail', id=b.id))
             return render_template('frontend/upload.html', form=form)
         # 上传文件
         if 'book_file' in request.files:
             upfile = form.book_file.data
-            print 'W' * 100
-            file_ext = get_extension(upfile.filename)
+            file_ext = utils.get_file_ext(upfile.filename)
             upload_folder = current_app.config.get('UPLOAD_BOOK_FOLDER')
             if not os.path.exists(upload_folder):
                 os.makedirs(upload_folder)
 
-            dest_filename = unique_id() + '.' + file_ext
+            dest_filename = utils.unique_id() + '.' + file_ext
             dest_filepath = os.path.join(upload_folder, dest_filename)
             upfile.seek(0)
             size = len(upfile.read())
             upfile.seek(0)
             upfile.save(dest_filepath)  # 保存文件
-            file_md5sum = get_md5sum(dest_filepath)
-            be_obj = BookEdition.query.filter_by(md5sum=file_md5sum).first()
+            file_checksum = utils.get_checksum(dest_filepath)
+            be_obj = BookEdition.query.filter_by(checksum=file_checksum).first()
             if be_obj:
                 os.remove(dest_filepath)
-                form.book_file.errors.append(u'图书已经存在,<a href="%s">' % url_for('.book_editon,id=' % be_obj.id))
+                form.book_file.errors.append(u'图书已经存在,<a href="%s">' % url_for('book.edition', id=be_obj.id))
                 return render_template('frontend/upload.html', form=form)
             # Book Object
             book = Book()
@@ -95,12 +62,12 @@ def upload():
             book.name = dest_filename
             tag_list = ''
             if book.douban_url is not None:  # 如果douban_url存在，则从豆瓣抓取相关信息
-                book_info = get_book_info(book.douban_url)
-                book.name = book_info.get('name')
+                book_info = douban.get_book_info(book.douban_url)
+                book.title = book_info.get('title')
                 book.author = book_info.get('author')
                 book.author_intro = book_info.get('author_intro')
                 book.book_intro = book_info.get('book_intro')
-                book.book_catalog = book_info.get('book_catalog')
+                book.catalog = book_info.get('catalog')
                 book.isbn = book_info.get('isbn')
                 book.publisher = book_info.get('publisher')
                 book.translator = book_info.get('translator')
@@ -128,7 +95,7 @@ def upload():
             be.size = size
             be.book = book
             be.user_id = current_user.id
-            be.md5sum = get_md5sum(dest_filepath)
+            be.checksum = utils.get_checksum(dest_filepath)
 
             # BookEditionComment Object
             bec = BookEditionComment()
@@ -160,19 +127,19 @@ def upload_ext():
         if 'book_file' in request.files:
             upfile = form.book_file.data
             print 'W' * 100
-            file_ext = get_extension(upfile.filename)
+            file_ext = utils.get_file_ext(upfile.filename)
             upload_folder = current_app.config.get('UPLOAD_BOOK_FOLDER')
             if not os.path.exists(upload_folder):
                 os.makedirs(upload_folder)
-            dest_filename = unique_id() + '.' + file_ext
+            dest_filename = utils.unique_id() + '.' + file_ext
             dest_filepath = os.path.join(upload_folder, dest_filename)
             upfile.seek(0)
             size = len(upfile.read())
 
             upfile.seek(0)
             upfile.save(dest_filepath)  # 保存文件
-            file_md5sum = get_md5sum(dest_filepath)
-            be_obj = BookEdition.query.filter_by(md5sum=file_md5sum).first()
+            file_checksum = utils.get_checksum(dest_filepath)
+            be_obj = BookEdition.query.filter_by(checksum=file_checksum).first()
             if be_obj:
                 form.book_file.errors.append(u'图书已经存在,<a href="%s">' % url_for('.book_editon,id=' % be_obj.id))
                 os.remove(dest_filepath)
@@ -180,11 +147,11 @@ def upload_ext():
 
             if 'logo' in request.files:
                 logofile = form.logo.data
-                logofile_ext = get_extension(logofile.filename)
+                logofile_ext = utils.get_file_ext(logofile.filename)
                 upload_logo_folder = current_app.config.get('UPLOAD_LOGO_FOLDER')
                 if not os.path.exists(upload_logo_folder):
                     os.makedirs(upload_logo_folder)
-                dest_logo_filename = get_namebasetime() + '.' + logofile_ext
+                dest_logo_filename = utils.get_namebasetime() + '.' + logofile_ext
                 dest_logo_filepath = os.path.join(upload_logo_folder, dest_logo_filename)
 
                 logofile.seek(0)
@@ -223,7 +190,7 @@ def upload_ext():
             be.size = size
             be.book = book
             be.user_id = current_user.id
-            be.md5sum = get_md5sum(dest_filepath)
+            be.md5sum = utils.get_checksum(dest_filepath)
 
             # BookEditionComment Object
             bec = BookEditionComment()
@@ -244,38 +211,6 @@ def upload_ext():
 @login_required
 def search_douban():
     q = request.args.get('q', '')
-    book_list = []
     if q is None or q == '':
-        return jsonify(book_list)
-    douban_url = "https://book.douban.com/subject_search?search_text=" + q
-    r = requests.get(douban_url)
-    if r.status_code == 200:
-        soup = BeautifulSoup(r.content, 'lxml')
-        item_list = soup.find_all(class_='subject-item')
-        print item_list
-        for item in item_list:
-            book = {}
-            book['pic'] = item.img.attrs.get('src')
-            onclick_attr = item.a.attrs.get("onclick")
-            subject_id = onclick_attr[onclick_attr.find("subject_id:") + 12:onclick_attr.find(",from") - 1]
-            book['subject_id'] = subject_id
-            book_url = item.h2.a.attrs.get('href')
-            if book_url.find('book.douban.com/subject/') == -1:
-                break
-            book['url'] = book_url
-            book_name = ''
-            name_list = item.h2.a.contents
-            for x in name_list:
-                book_name = book_name + repr(x).strip()
-            book['name'] = item.h2.a.get_text().strip().replace(' ', '').replace("\n", "")
-            book['pub'] = item.find(class_='pub').get_text().strip()
-            if item.find(class_='rating_nums') is not None:
-                book['rating_nums'] = item.find(class_='rating_nums').get_text().strip() + u'分'
-            else:
-                book['rating_nums'] = ''
-            if item.find(class_='pl') is not None:
-                book['rating_peoples'] = item.find(class_='pl').get_text().strip()
-            else:
-                book['rating_peoples'] = ''
-            book_list.append(book)
-    return jsonify(book_list)
+        return jsonify([])
+    return jsonify(douban.get_search_book_list(q))

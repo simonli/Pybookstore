@@ -1,58 +1,9 @@
 # -*- coding:utf-8 -*-
-import hashlib
-import os
-import random
 import re
-import string
-import uuid
-from datetime import datetime
-from urlparse import urlparse, urljoin
 
 import bs4
 import requests
-from PIL import Image, ImageFont, ImageDraw
 from bs4 import BeautifulSoup
-from flask import request
-
-current_dir = os.path.abspath(os.path.dirname(__file__))
-
-
-def generate_verification_code():
-    codenum = 4
-    source = list(string.letters)
-    for index in range(0, 10):
-        source.append(str(index))
-    code = ''.join(random.sample(source, 4))
-
-    # 设置图片大小
-    width = 80
-    height = 40
-    image = Image.new('RGB', (width, height), (255, 255, 255))
-    # 选择字体
-    fontfile = os.path.join(current_dir, 'static/consola.ttf')
-    font = ImageFont.truetype(fontfile, 24)
-    draw = ImageDraw.Draw(image)
-
-    for x in range(width):
-        for y in range(height):
-            colorRandom1 = (random.randint(255, 255), random.randint(255, 255), random.randint(255, 255))
-            draw.point((x, y), fill=colorRandom1)
-
-        for t in range(codenum):
-            colorRandom2 = (random.randint(1, 80), random.randint(1, 80), random.randint(1, 80))
-            draw.text((16 * t + 10, 10), code[t], font=font, fill=colorRandom2)
-    image_d = ImageDraw.Draw(image)
-    for i in range(5):
-        colorRandom3 = (random.randint(1, 80), random.randint(1, 80), random.randint(1, 80))
-        begin = (random.randint(0, width), random.randint(0, height))
-        end = (random.randint(0, width), random.randint(0, height))
-        image_d.line([begin, end], fill=colorRandom3)
-
-    return code, image
-
-
-def unique_id():
-    return str(uuid.uuid4())
 
 
 def get_book_info(book_url):
@@ -61,9 +12,9 @@ def get_book_info(book_url):
     if r.status_code == 200:
         soup = BeautifulSoup(r.content, 'lxml')
 
-        book['name'] = ''
+        book['title'] = ''
         if soup.find(id='wrapper'):
-            book['name'] = bs4_get_text(soup.find(id='wrapper').h1.span)
+            book['title'] = bs4_get_text(soup.find(id='wrapper').h1.span)
 
         book['logo'] = ''
         if soup.find(class_='nbg'):
@@ -102,9 +53,9 @@ def get_book_info(book_url):
                 relate_info.find(text=re.compile(u'作者简介')).parent.parent.next_sibling.next_sibling.find(
                     class_='intro'))
 
-        book['book_catalog'] = ''
+        book['catalog'] = ''
         if relate_info.find(id="dir_" + subject_id + "_full"):
-            book['book_catalog'] = bs4_get_text(relate_info.find(id="dir_" + subject_id + "_full"))
+            book['catalog'] = bs4_get_text(relate_info.find(id="dir_" + subject_id + "_full"))
 
         book['rating_score'] = 0
         if soup.find(class_=re.compile('ll rating_num')):
@@ -136,37 +87,37 @@ def bs4_get_text(obj):
         return ''
 
 
-def get_md5sum(filepath):
-    md5sum = ''
-    if os.path.exists(filepath):
-        rb = open(filepath, 'rb')
-        rb_md5 = hashlib.md5()
-        rb_md5.update(rb.read())
-        md5sum = rb_md5.hexdigest()
-    return md5sum
-
-
-def get_extension(filename):
-    if '.' in filename:
-        return filename.rsplit('.', 1)[1].lower()
-    else:
-        ext = os.path.splitext(filename)[1]
-        if ext.startswith('.'):
-            ext = ext[1:].lower()
-        return ext
-
-
-def get_namebasetime():
-    return '%s%s' % (datetime.strftime(datetime.now(), '%Y%m%d%H%M%S'), datetime.now().microsecond)
-
-
-def is_safe_url(target):
-    ref_url = urlparse(request.host_url)
-    test_url = urlparse(urljoin(request.host_url, target))
-    return test_url.scheme in ('http', 'https') and \
-           ref_url.netloc == test_url.netloc
-
-
-if __name__ == "__main__":
-    im = generate_verification_code()
-    im.show()
+def get_search_book_list(keyword):
+    douban_url = "https://book.douban.com/subject_search?search_text=" + keyword
+    r = requests.get(douban_url)
+    book_list = []
+    if r.status_code == 200:
+        soup = BeautifulSoup(r.content, 'lxml')
+        item_list = soup.find_all(class_='subject-item')
+        print item_list
+        for item in item_list:
+            book = {}
+            book['pic'] = item.img.attrs.get('src')
+            onclick_attr = item.a.attrs.get("onclick")
+            subject_id = onclick_attr[onclick_attr.find("subject_id:") + 12:onclick_attr.find(",from") - 1]
+            book['subject_id'] = subject_id
+            book_url = item.h2.a.attrs.get('href')
+            if book_url.find('book.douban.com/subject/') == -1:
+                break
+            book['url'] = book_url
+            book_name = ''
+            name_list = item.h2.a.contents
+            for x in name_list:
+                book_name = book_name + repr(x).strip()
+            book['name'] = item.h2.a.get_text().strip().replace(' ', '').replace("\n", "")
+            book['pub'] = item.find(class_='pub').get_text().strip()
+            if item.find(class_='rating_nums') is not None:
+                book['rating_nums'] = item.find(class_='rating_nums').get_text().strip() + u'分'
+            else:
+                book['rating_nums'] = ''
+            if item.find(class_='pl') is not None:
+                book['rating_peoples'] = item.find(class_='pl').get_text().strip()
+            else:
+                book['rating_peoples'] = ''
+            book_list.append(book)
+    return book_list
