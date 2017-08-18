@@ -11,28 +11,24 @@
     <link href="{{ url_for('static', filename='lib/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet"
           type="text/css"/>
     <link href="{{ url_for('static', filename='css/site.css') }}" rel="stylesheet" type="text/css"/>
-    {% block css %}{% endblock %}
-    <script src="{{ url_for('static', filename='lib/jquery/jquery.min.js') }}"></script>
+    {% block css -%}{% endblock -%}
+    <script src="{{ url_for('static', filename='lib/jquery/jquery-3.2.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/bootstrap/js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/site.js') }}"></script>
 </head>
 <body>
 
-<div class="navbar navbar-fixed-top" id="navbar">
-    <div class="navbar-inner">
-        {#        <div class="container">#}
-        {#            <a class="brand" href="/"></a>#}
-        {#            <ul class="nav">#}
-        {#                <li class="nav-item "><a href="/gutenberg/">盖世汽车</a></li>#}
-        {#            </ul>#}
+<nav class="navbar navbar-inverse">
+    <a class="brand" href="/"></a>
+    <ul class="nav">
+        <li><a href="/gutenberg/">盖世汽车</a></li>
+    </ul>
         {#            {% if current_user.is_authenticated %}#}
         {#                <ul class="nav pull-right">#}
         {#                    <li class="nav-item"><a href="/accounts/settings/pro/"><i class="fa fa-rocket"></i><span#}
         {#                            class="visible-large">升级</span></a></li>#}
-        {##}
         {#                    <li class="nav-item "><a href="/upload/"><i class="fa fa-upload" aria-hidden="true"></i><span#}
         {#                            class="visible-large">上传</span></a></li>#}
-        {##}
         {#                    <li class="nav-item ">#}
         {#                        <a href="/notifications/">#}
         {#                            <i class="fa fa-bell" aria-hidden="true"></i>#}
@@ -40,39 +36,11 @@
         {##}
         {#                        </a>#}
         {#                    </li>#}
-        {#                    <li class="dropdown">#}
-        {#                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-original-title="">#}
-        {#                            <span class="ribbon-wrapper">#}
-        {#                                <span class="ribbon-wrapper-green"><div class="ribbon-green hidden">Pro</div></span>#}
-        {#                                <img class="img img-circle avatar-small" title="simonli" src="/static/img/babel.png"/>#}
-        {#                            </span>#}
-        {#                            <b class="caret"></b>#}
-        {#                        </a>#}
-        {#                        <ul id='account-dropdown' class="dropdown-menu">#}
-        {#                            <li><a href="/accounts/profile/simonli/wish/"><i class="icon-user" aria-hidden="true"></i>个人中心</a>#}
-        {#                            </li>#}
-        {#                            <li><a href="/accounts/settings/push/"><i class="icon-cog"></i> 设置</a></li>#}
-        {#                            <li><a href="/faq/"><i class="icon-question-sign"></i> 常见问题</a></li>#}
-        {#                            <li><a href="#wechat-qrcode" role="button" data-toggle="modal"><i class="icon-qrcode"></i>微信公众号</a>#}
-        {#                            </li>#}
-        {#                            <li><a href="http://forum.readfree.me/" target="_blank"><i#}
-        {#                                    class="fa fa-comments-o"></i>论坛</a></li>#}
-        {#                            <li><a href="{{ url_for('account.logout') }}"><i class="icon-off"></i> 退出</a></li>#}
-        {#                        </ul>#}
-        {#                    </li>#}
-        {##}
         {#                </ul>#}
         {#            {% else %}#}
-        {#                <ul class="nav pull-right">#}
-        {#                    <li class="nav-item"><a href="/accounts/login/"><i class="fa fa-user"></i> 登录 </a></li>#}
-        {#                    <li class="nav-item"><a href="/accounts/signup/"><i class="fa fa-user-plus" aria-hidden="true"></i>#}
-        {#                        注册 </a></li>#}
-        {##}
-        {#                </ul>#}
         {#            {% endif %}#}
-        {#        </div>#}
-    </div>
-</div>
+</nav>
+
 
 <div class="container" id="container">
     {% block flash %}
