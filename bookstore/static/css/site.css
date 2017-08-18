@@ -1,0 +1,77 @@
+
+.navbar-inverse {
+    margin-bottom: 0;
+    background-color: #43a047;
+    border-bottom: 1px solid #43a047;
+}
+
+.navbar-inverse .navbar-brand {
+    padding-top: 12px;
+}
+
+.navbar-inverse .navbar-brand .navbar-logo {
+    height: 28px;
+}
+
+.navbar-inverse a.navbar-brand {
+    color: #fff;
+}
+
+.navbar-inverse a.navbar-brand:focus, .navbar-inverse a.navbar-brand:hover {
+    color: #444;
+    background-color: #43a047;
+}
+
+.navbar-inverse .navbar-nav > li > a {
+    color: #fff;
+}
+
+.navbar-inverse .navbar-nav > li > a:focus, .navbar-inverse .navbar-nav > li > a:hover {
+    color: #444;
+    background-color: #76d275;
+}
+
+.navbar-inverse .navbar-nav .nav-icon {
+    font-size: 18px;
+}
+
+.navbar-inverse .navbar-nav > li.active > a {
+    background-color: #76d275;
+}
+
+.navbar-inverse .navbar-nav > li.active > a:focus, .navbar-inverse .navbar-nav > li.active > a:hover {
+    background-color: #76d275;
+}
+
+.navbar-inverse .navbar-form {
+    border-color: #43a047;
+}
+
+.navbar-inverse .navbar-form .input-sm {
+    margin-top: 2px;
+}
+
+.navbar-inverse .navbar-form input[type="search"] {
+    background-color: #76d275;
+    border-color: #43a047;
+}
+
+.navbar-inverse .navbar-form input[type="search"]::placeholder {
+    color: #fff;
+}
+
+.navbar-inverse .navbar-form input[type="search"]:focus, .navbar-inverse .navbar-form input[type="search"]:active {
+    background-color: #fff;
+}
+
+.navbar-inverse .navbar-toggle {
+    border: 1px solid #43a047;
+}
+
+.navbar-inverse .navbar-toggle.active, .navbar-inverse .navbar-toggle:focus, .navbar-inverse .navbar-toggle:hover {
+    background-color: #76d275;
+}
+
+.navbar-inverse .navbar-collapse {
+    border-color: #43a047;
+}

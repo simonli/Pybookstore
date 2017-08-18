@@ -1,37 +1,57 @@
-<li class="subject-item">
-    <div class="pic">
-        <a class="nbg" href="https://book.douban.com/subject/26585403/"
-           onclick="moreurl(this,{i:'2',query:'%25E5%258F%2596%25E6%2582%25A6',subject_id:'26585403',from:'book_subject_search'})">
-            <img class="" src="https://img3.doubanio.com/mpic/s28272264.jpg"
-                 width="90">
-        </a>
-    </div>
-    <div class="info">
-        <h2 class="">
-            <a href="https://book.douban.com/subject/26585403/" title="取悦症"
-               onclick="moreurl(this,{i:'2',query:'%25E5%258F%2596%25E6%2582%25A6',subject_id:'26585403',from:'book_subject_search'})">
-                取悦症<span style="font-size:12px;"> : 不懂拒绝的老好人 </span>
-            </a>
-        </h2>
-        <div class="pub">
-            [美]哈丽雅特•布莱克 / 姜文波 / 机械工业出版社 / 2015-7
-        </div>
-        <div class="star clearfix">
-            <span class="allstar40"></span>
-            <span class="rating_nums">7.7</span>
-            <span class="pl">
-        (88人评价)    </span>
-        </div>
-        <div class="ft">
-            <div class="collect-info">
-            </div>
-            <div class="cart-actions">
-              <span class="market-info">
-                <a href="https://book.douban.com/subject/26585403/?channel=subject_list&amp;platform=web"
-                   target="_blank">在豆瓣购买</a>
-              </span>
-            </div>
-        </div>
-    </div>
-</li>
+<div class="navbar navbar-fixed-top" id="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="brand" href="/"></a>
+            <ul class="nav">
+                <li class="nav-item "><a href="/gutenberg/">盖世汽车</a></li>
+            </ul>
+            {% if current_user.is_authenticated %}
+                <ul class="nav pull-right">
+                    <li class="nav-item"><a href="/accounts/settings/pro/"><i class="fa fa-rocket"></i><span
+                            class="visible-large">升级</span></a></li>
 
+                    <li class="nav-item "><a href="/upload/"><i class="fa fa-upload" aria-hidden="true"></i><span
+                            class="visible-large">上传</span></a></li>
+
+                    <li class="nav-item ">
+                        <a href="/notifications/">
+                            <i class="fa fa-bell" aria-hidden="true"></i>
+                            <span class="visible-large">通知</span>
+
+                        </a>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-original-title="">
+                                    <span class="ribbon-wrapper">
+                                        <span class="ribbon-wrapper-green"><div
+                                                class="ribbon-green hidden">Pro</div></span>
+                                        <img class="img img-circle avatar-small" title="simonli"
+                                             src="/static/img/babel.png"/>
+                                    </span>
+                            <b class="caret"></b>
+                        </a>
+                        <ul id='account-dropdown' class="dropdown-menu">
+                            <li><a href="/accounts/profile/simonli/wish/"><i class="icon-user" aria-hidden="true"></i>个人中心</a>
+                            </li>
+                            <li><a href="/accounts/settings/push/"><i class="icon-cog"></i> 设置</a></li>
+                            <li><a href="/faq/"><i class="icon-question-sign"></i> 常见问题</a></li>
+                            <li><a href="#wechat-qrcode" role="button" data-toggle="modal"><i class="icon-qrcode"></i>微信公众号</a>
+                            </li>
+                            <li><a href="http://forum.readfree.me/" target="_blank"><i
+                                    class="fa fa-comments-o"></i>论坛</a></li>
+                            <li><a href="{{ url_for('account.logout') }}"><i class="icon-off"></i> 退出</a></li>
+                        </ul>
+                    </li>
+
+                </ul>
+            {% else %}
+                <ul class="nav pull-right">
+                    <li class="nav-item"><a href="/accounts/login/"><i class="fa fa-user"></i> 登录 </a></li>
+                    <li class="nav-item"><a href="/accounts/signup/"><i class="fa fa-user-plus" aria-hidden="true"></i>
+                        注册 </a></li>
+
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+</div>
