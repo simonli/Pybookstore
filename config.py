@@ -8,8 +8,9 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config():
     DEBUG = True
     SECRET_KEY = '\xb33]\xdbO\xb4k\x8fU\x00ZQ\xac\x83\x89Y)\x01\x10\xfa\x06\xa8\x80\x8e'
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///bookstore.db'
-    # SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres:cncode@localhost:5432/putidms"
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + basedir + os.sep + 'bookstore.db'
+
+    # SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres:cncode@localhost:5432/bookstore"
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 

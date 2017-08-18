@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% from "_macros.html" import render_errors %}
+
 {% block content %}
     <div class="row" style="margin-bottom: 10px;">
         <ul class="nav nav-tabs">
@@ -61,7 +62,13 @@
     </div>
 {% endblock %}
 {% block js %}
+    <script src="{{ url_for('static', filename='lib/jsrender/jsrender.min.js') }}"></script>
+
     <script type=text/javascript>
+        //jsReder define
+        $.views.settings.delimiters("[%", "%]");
+
+
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 
         $("#id_btn").bind('click', function () {
@@ -71,6 +78,9 @@
         });
 
         function search_douban() {
+
+            var tmpl = $.templates("#id_book_tmpl");
+
             var q = $("#id_q").val();
             //alert(q)
             var url = $SCRIPT_ROOT + "/search/douban/";
@@ -82,7 +92,7 @@
                 success: function (data) {
                     console.log(data)
                     $("#id_books").empty();
-                    $('#id_book_tmpl').tmpl(data).appendTo('#id_books');
+                    $("#id_books").html(tmpl.render(data));
                 },
                 error: function (e) {
                     alert(e);
@@ -113,27 +123,30 @@
 
 
     </script>
-    <script id="id_book_tmpl" type="text/x-jquery-tmpl">
+    <script id="id_book_tmpl" type="text/x-jsrender">
         <li style="border-top:1px dashed #ddd;padding: 20px 0 10px;">
             <div class="row">
                 <div class="col-md-3">
-                    <a href="${url}" target="_blank">
-                        <img src="${pic}" alt="${name}">
+                    <a href="[%:url%]" target="_blank">
+                        <img src="[%:pic%]" alt="[%:name%]">
                     </a>
                 </div>
                 <div class="col-md-9">
                     <h5>
-                        <a id="${subject_id}" href="${url}" target="_blank">${name}</a>
-                        <button class="btn btn-mini" onclick="copy_link('${subject_id}')">
+                        <a id="[%:subject_id%]" href="[%:url%]" target="_blank">[%:name%]</a>
+                        <button class="btn btn-mini" onclick="copy_link('[%:subject_id%]')">
                             <i class="icon-file"></i>复制链接
                         </button>
                     </h5>
-                    <div>${pub}</div>
+                    <div>[%:pub%]</div>
                     <div>
-                        ${rating_nums}${rating_peoples}
+                       [%:rating_nums%][%:rating_peoples%]
                     </div>
                 </div>
             </div>
         </li>
+
+
+
     </script>
 {% endblock %}

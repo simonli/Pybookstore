@@ -3,12 +3,10 @@ import re
 
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
-# from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from wtforms import SelectField
 from wtforms.validators import Regexp, HostnameValidation, ValidationError, StopValidation
 
-# migrate = Migrate()
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -50,6 +48,7 @@ class FileSizeAllowed(object):
     """
     检查上传文件的大小,默认2MB
     """
+
     def __init__(self, allowed_size=2 * 1024 * 1024, message=None):
         self.allowed_size = allowed_size
         self.message = message

@@ -27,7 +27,7 @@ class Book(db.Model):
     douban_url = db.Column(db.String(255))
     douban_rating_score = db.Column(db.Integer, default=0)  # 豆瓣得分
     douban_rating_people = db.Column(db.Integer, default=0)  # 豆瓣评论人数
-    catalog = db.Column(db.Text)  # 图书目录
+    book_catalog = db.Column(db.Text)  # 图书目录
     book_intro = db.Column(db.Text)  # 内容简介
     author_intro = db.Column(db.Text)  # 作者简介
     create_time = db.Column(db.DateTime, default=datetime.now)

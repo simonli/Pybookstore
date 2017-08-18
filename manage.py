@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 from flask_script import Manager, Server, Shell
 
-from bookstore.app import create_app
 from bookstore.extensions import db
 from bookstore.models.book import Book, BookEdition, BookEditionComment, Tag
 from bookstore.models.user import User, Role
+from bookstore.startup import create_app
 
 app = create_app('default')
 
