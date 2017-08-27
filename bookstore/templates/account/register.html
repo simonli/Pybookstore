@@ -1,17 +1,42 @@
 {% extends "layout.html" %}
-{% from "_macros.html" import render_field,render_submit_field %}
+{% from "_macros.html" import render_field,render_submit,render_errors %}
 {% block content %}
     <div class="row">
-        <div class="col-md-2">
-                <form action="{{ url_for('account.register') }}" method="post" class="form-horizontal" role="form">
-                    {{ form.csrf_token }}
-                    {{ render_field(form.username) }}
-                    {{ render_field(form.email) }}
-                    {{ render_field(form.password) }}
-                    {{ render_field(form.password_confirm) }}
-                    {{ render_submit_field(form.submit) }}
-                </form>
+        <div class="col-md-4">
+            <form action="{{ url_for('account.register') }}" method="post">
+                {{ form.csrf_token }}
+                <div class="form-group {% if form.username.errors %}has-error{% endif %} ">
+                    <label for="{{ form.username.id }}" class="control-label">
+                        <i class="fa fa-user-o fa-fw"></i>用户名
+                    </label>
+                    {{ form.username(class_='form-control', required=true) }}
+                    {{ render_errors(form.username) }}
+                </div>
+                <div class="form-group {% if form.password.errors %}has-error{% endif %} ">
+                    <label for="{{ form.password.id }}" class="control-label">
+                        <i class="fa fa-key fa-fw"></i>密码
+                    </label>
+                    {{ form.password(class_='form-control', required=true) }}
+                    {{ render_errors(form.password) }}
+                </div>
+                <div class="form-group {% if form.password_confirm.errors %}has-error{% endif %} ">
+                    <label for="{{ form.password_confirm.id }}" class="control-label">
+                        </i><i class="fa fa-repeat fa-fw"></i> 重复密码
+                    </label>
+                    {{ form.password_confirm(class_='form-control', required=true) }}
+                    {{ render_errors(form.password_confirm) }}
+                </div>
+                <div class="form-group {% if form.email.errors %}has-error{% endif %} ">
+                    <label for="{{ form.email.id }}" class="control-label">
+                        <i class="fa fa-envelope-o fa-fw"></i>邮箱
+                    </label>
+                    {{ form.email(class_='form-control', type='email', required=true) }}
+                    {{ render_errors(form.email) }}
+                </div>
+                <div class="form-group">
+                    <button  class="btn btn-primary"><i class="fa fa-check-square-o fa-2x"></i> 注册</button>
+                </div>
+            </form>
         </div>
-    </div>
     </div>
 {% endblock %}

@@ -1,18 +1,45 @@
 {% extends "layout.html" %}
-{% from "_macros.html" import render_field,render_submit_field %}
+{% from "_macros.html" import render_errors %}
 {% block content %}
-    <div class="row">
-        <div class="col-md-3">
-            <form action="{{ url_for('account.login',next=next) }}" method="post" class="form-horizontal" role="form">
-                {{ form.csrf_token }}
-                {{ render_field(form.username) }}
-                {{ render_field(form.password) }}
-                {{ render_field(form.verifycode) }}
-                <img id="verifycode" src="{{ url_for('account.verifycode') }}"
-                         onclick="this.src='{{ url_for("account.verifycode") }}?d='+Math.random();"/>
-                {{ render_submit_field(form.submit) }}
-            </form>
+    <form action="{{ url_for('account.login',next=next) }}" method="post" class="form-horizontal" role="form">
+        {{ form.csrf_token }}
+        <div class="form-group {% if form.username.errors %}has-error{% endif %}">
+            <label for="{{ form.username.id }}" class="control-label col-md-2">
+                <i class="fa fa-user-o fa-fw"></i>用户名
+            </label>
+            <div class="col-md-4">
+                {{ form.username(class_='form-control', required=true) }}
+                {{ render_errors(form.username) }}
+            </div>
+
         </div>
-    </div>
-    </div>
+
+        <div class="form-group {% if form.password.errors %}has-error{% endif %}">
+            <label for="{{ form.password.id }}" class="control-label col-md-2">
+                <i class="fa fa-key fa-fw"></i>密码
+            </label>
+            <div class="col-md-4">
+                {{ form.password(class_='form-control', required=true) }}
+                {{ render_errors(form.password) }}
+            </div>
+        </div>
+        <div class="form-group {% if form.verifycode.errors %}has-error{% endif %}">
+            <label for="{{ form.verifycode.id }}" class="control-label col-md-2">
+                <i class="fa fa-check-circle-o fa-fw"></i>验证码
+            </label>
+            <div class="col-md-2">
+                {{ form.verifycode(class_='form-control', required=true) }}
+                {{ render_errors(form.verifycode) }}
+            </div>
+            <div class="col-md-2">
+                <img id="verifycode" src="{{ url_for('account.verifycode') }}" onclick="this.src='{{ url_for("account.verifycode") }}?d='+Math.random();"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-1">
+                <button class="btn btn-primary"><i class="fa fa-check-square-o fa-2x"></i> 登录 </button>
+            </div>
+        </div>
+    </form>
 {% endblock %}

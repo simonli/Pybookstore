@@ -10,6 +10,8 @@
     <title>{% block title %}{% endblock %} - 系统</title>
     <link href="{{ url_for('static', filename='lib/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet"
           type="text/css"/>
+    <link href="{{ url_for('static', filename='lib/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet"
+          type="text/css"/>
     <link href="{{ url_for('static', filename='css/site.css') }}" rel="stylesheet" type="text/css"/>
     {% block css -%}{% endblock -%}
     <script src="{{ url_for('static', filename='lib/jquery/jquery-3.2.1.min.js') }}"></script>
@@ -17,62 +19,29 @@
     <script src="{{ url_for('static', filename='js/site.js') }}"></script>
 </head>
 <body>
-
-<nav id="site-nav" class="navbar navbar-inverse">
+<nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                    data-target="#bs-example-navbar-collapse-1">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">
-                <img class="navbar-logo" src="/images/bazel-navbar.svg">
-            </a>
+            <a href="{{ url_for("frontend.index") }}" class="navbar-brand">BookStore</a>
         </div>
-        <div class="collapse navbar-collapse" id="menu">
-            <ul class="nav navbar-nav navbar-right">
-                <li>
-                    <a href="https://docs.bazel.build">Documentation</a>
-                </li>
-                <li>
-                    <a href="/contributing.html">Contribute</a>
-                </li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-original-title="">
-                                    <span class="ribbon-wrapper">
-                                        <span class="ribbon-wrapper-green"><div
-                                                class="ribbon-green hidden">Pro</div></span>
-                                        <img class="img img-circle avatar-small" title="simonli"
-                                             src="/static/img/babel.png"/>
-                                    </span>
-                        <b class="caret"></b>
-                    </a>
-                    <ul id='account-dropdown' class="dropdown-menu">
-                        <li><a href="/accounts/profile/simonli/wish/"><i class="icon-user"
-                                                                         aria-hidden="true"></i>个人中心</a>
-                        </li>
-                        <li><a href="/accounts/settings/push/"><i class="icon-cog"></i> 设置</a></li>
-                        <li><a href="/faq/"><i class="icon-question-sign"></i> 常见问题</a></li>
-                        <li><a href="#wechat-qrcode" role="button" data-toggle="modal"><i class="icon-qrcode"></i>微信公众号</a>
-                        </li>
-                        <li><a href="http://forum.readfree.me/" target="_blank"><i
-                                class="fa fa-comments-o"></i>论坛</a></li>
-                        <li><a href="{{ url_for('account.logout') }}"><i class="icon-off"></i> 退出</a></li>
-                    </ul>
-                </li>
-
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="{{ url_for("frontend.index") }}">Home</a></li>
+                <li><a href="{{ url_for("frontend.index") }}">About</a></li>
+                <li><a href="{{ url_for("frontend.index") }}">Contact</a></li>
             </ul>
         </div>
-
-
     </div>
 </nav>
 
 
-<div class="container" id="container">
+<div class="container body-content" id="container">
     {% block flash %}
         {% for category, message in get_flashed_messages(with_categories=true) %}
             <div class="alert alert-{{ category }} alert-dismissable">

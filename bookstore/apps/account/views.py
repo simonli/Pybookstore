@@ -28,17 +28,20 @@ def register():
         if User.query.filter_by(username=form.username.data).first():
             form.username.errors.append(u'用户名已经存在, 请您换一个.')
             return render_template('account/register.html', form=form)
-        else:
-            user = User()
-            user.username = form.username.data
-            user.password = form.password.data
-            user.email = form.email.data
-            role = Role.query.filter_by(name='Free').first()
-            user.role_id = role.id
-            db.session.add(user)
-            db.session.commit()
-            flash(u'注册成功, 欢迎您: %s' % user.username, 'success')
-            return redirect(url_for('frontend.index'))
+        if User.query.filter_by(email=form.email.data).first():
+            form.email.errors.append(u'邮箱已经存在, 请您换一个.')
+            return render_template('account/register.html', form=form)
+
+        user = User()
+        user.username = form.username.data
+        user.password = form.password.data
+        user.email = form.email.data
+        role = Role.query.filter_by(name='Free').first()
+        user.role_id = role.id
+        db.session.add(user)
+        db.session.commit()
+        flash(u'注册成功, 欢迎您: %s' % user.username, 'success')
+        return redirect(url_for('frontend.index'))
     return render_template('account/register.html', form=form)
 
 
